@@ -2,9 +2,10 @@ package cli
 
 import "fmt"
 
+// Cli command processer
 type Cli interface {
-	OneCmd(input string) error
-	AddCmd(commands ...*Command)
+	OneCmd(input string) error // Process one command
+	AddCmd(commands ...*Command) // Adds one or more commands
 }
 
 type cli struct {
@@ -17,6 +18,7 @@ func NewCli() Cli {
 	}
 }
 
+// Process one command of the form <command> <flags> <args>
 func (c cli) OneCmd(input string) error {
 	cmd, ok := c.cmds[input]
 	if !ok {
@@ -26,6 +28,7 @@ func (c cli) OneCmd(input string) error {
 	return nil
 }
 
+// Adds one or more commands
 func (c cli) AddCmd(commands ...*Command) {
 	for _, cmd := range commands {
 		c.cmds[cmd.Use] = cmd

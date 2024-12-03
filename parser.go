@@ -7,8 +7,9 @@ import (
 	"unicode"
 )
 
+// CommandParser implements a method for parsing commands of the form <command> <flags> <args> into a ParsedCommand structure
 type CommandParser interface {
-	ParseCommand(input string) (*ParsedCommand, error)
+	ParseCommand(input string) (*ParsedCommand, error) // ParseCommand parses a string representing a command of the form <command> <flags> <args>
 }
 
 type commandParser struct {
@@ -18,6 +19,12 @@ func NewCommandParser() CommandParser {
 	return &commandParser{}
 }
 
+// ParseCommand parses a string representing a command of the form <command> <flags> <args> into a ParsedCommand structure
+//
+// Command examples:
+// 	- cmd arg arg	- command with two splittted args
+//	- cmd "arg arg" - command with one multiword flag
+//	- cmd -a --flag1="value1" -bc --flag2='value2' -d 'arg arg' "arg arg"	- command with variable flags and two multiword args
 func (cp *commandParser) ParseCommand(input string) (*ParsedCommand, error) {
 	tokens, err := Tokenize(input)
 	if err != nil {
@@ -93,6 +100,11 @@ func trimArg(arg string) string {
 	return arg
 }
 
+// Tokenize split command input to string array
+//
+// Removes quotes where required
+// Example:
+//	- cmd --flag1="value1" "arg arg" -> []string{"cmd", "--flag1=value1", "arg arg"}
 func Tokenize(input string) ([]string, error) {
 	var tokens []string
 	var currentToken strings.Builder
