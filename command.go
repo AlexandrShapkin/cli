@@ -1,6 +1,8 @@
 package cli
 
-import "strings"
+import (
+	"strings"
+)
 
 // Description of command or flag or something else
 type Description struct {
@@ -13,11 +15,14 @@ type Command struct {
 	Use   string
 	Flags []*CommandFlag
 	Desc  Description
-	Run   func()
+	Run   func(flags map[string]*ParsedCommandFlags, args []string)
 }
 
 // Returns a flag by type name. Returns a flag by type name. If it does not exist, then nil.
 func (c *Command) GetFlag(flag string) *CommandFlag {
+	if c.Flags == nil {
+		return nil
+	}
 	for _, f := range c.Flags {
 		long := strings.Compare(f.Long, flag) == 0
 		short := strings.Compare(f.Short, flag) == 0
@@ -43,6 +48,7 @@ type ParsedCommand struct {
 }
 
 type ParsedCommandFlags struct {
+	Type string
 	Name string
 	Args string
 }

@@ -10,21 +10,40 @@ type Cli interface {
 
 type cli struct {
 	cmds map[string]*Command
+	parser CommandParser
 }
 
 func NewCli() Cli {
 	return &cli{
 		cmds: make(map[string]*Command),
+		parser: NewCommandParser(),
 	}
 }
 
 // Process one command of the form <command> <flags> <args>
 func (c cli) OneCmd(input string) error {
-	cmd, ok := c.cmds[input]
+	parsed, err := c.parser.ParseCommand(input)
+	if err != nil {
+		return err
+	}
+	cmd, ok := c.cmds[parsed.Name]
 	if !ok {
 		return fmt.Errorf("command %s not found", input)
 	}
-	cmd.Run()
+	flags := make(map[string]*ParsedCommandFlags)
+	for i := range parsed.Flags {
+		flag := cmd.GetFlag(i)
+		if flag == nil {
+			continue
+		}
+		t := flag.Type
+		flags[t] = &ParsedCommandFlags{
+			Type: t,
+			Args: parsed.Flags[i].Args,
+			Name: parsed.Flags[i].Name,
+		}
+	}
+	cmd.Run(flags, parsed.Args)
 	return nil
 }
 
